@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "jeff-hykin.better-shellscript-syntax",
+    "denoland.vscode-deno",
+    "ryanluker.vscode-coverage-gutters"
+  ]
+}
