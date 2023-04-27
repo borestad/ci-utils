@@ -73,11 +73,8 @@ const result = await mapLimit(files, 4, async (dl, i) => {
     pbtotal.forceRender()
 
     const blob = await res.blob()
-    pbtotal.forceRender()
     await Deno.writeFile(tempFilePath, blob.stream())
-    pbtotal.forceRender()
     await Deno.rename(tempFilePath, `./${dl.output}`)
-    pbtotal.forceRender()
 
     pb.prefix(`✅ OK ${size?.padStart(12)}`)
   }
