@@ -2,29 +2,53 @@
 
 set -o errexit
 
-PWD=$(pwd)
+#
+# Helpers
+#
+time-now() {
+  date +%s.%N
+}
+benchmark() {
+  local start=$1
+  local end=${2:-$(time-now)}
+  printf %.2f $(echo "$end - $start" | bc -l)
+}
+
+#
+# Main
+#
+DIR=$(pwd)
 URL=$1
 BASENAME=$(basename $URL | sd '\?.*' '')
 OUTPUT=${2:-$BASENAME}
 TEMPFILE=$(mktemp)
+TEMPDIR=$(mktemp -d)
+# echo "Downloading: $OUTPUT ..."
 
-# TODO: use --max-time ?
+cd $TEMPDIR
 
-echo "🚀 Downloading: $OUTPUT ..."
-# ets -s -f '%s.%Ls ┃  ' \
-    curl \
-    --silent \
-    --location \
-    --keepalive \
-    --connect-timeout 5 \
-    --retry 1 \
-    --fail \
-    --insecure \
-    --compressed \
-    -o "$TEMPFILE" \
-    "${URL}"
+curl \
+  -# \
+  --location \
+  --keepalive \
+  --connect-timeout 5 \
+  --retry 1 \
+  --fail \
+  --compressed \
+  -o "$OUTPUT" \
+  "${URL}" 2>&1
 
-mv ${TEMPFILE} $PWD/$OUTPUT
+# wget \
+#   --compression auto \
+#   -O $OUTPUT \
+#   -q \
+#   --show-progress \
+#   --progress=bar:noscroll \
+#   "${URL}" \
+#   2>&1
 
-SIZE=$(du -h $PWD/$OUTPUT | xargs | cut -d ' ' -f1)
-echo "   Size: $SIZE"
+cd $DIR
+
+mv ${TEMPDIR}/* $PWD/$OUTPUT
+
+echo "✅ $URL"

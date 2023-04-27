@@ -71,7 +71,20 @@
     "https://deno.land/x/dax@0.31.0/src/shell.ts": "dbfe85c722826672ad72f87e07f3d9f4552eadf6933772617f1c0f3cd23c234d",
     "https://deno.land/x/dir@1.5.1/data_local_dir/mod.ts": "91eb1c4bfadfbeda30171007bac6d85aadacd43224a5ed721bbe56bc64e9eb66",
     "https://deno.land/x/outdent@v0.8.0/src/index.ts": "6dc3df4108d5d6fedcdb974844d321037ca81eaaa16be6073235ff3268841a22",
-    "https://deno.land/x/which@0.3.0/mod.ts": "3e10d07953c14e4ddc809742a3447cef14202cdfe9be6678a1dfc8769c4487e6"
+    "https://deno.land/x/which@0.3.0/mod.ts": "3e10d07953c14e4ddc809742a3447cef14202cdfe9be6678a1dfc8769c4487e6",
+    "https://esm.sh/ky@0.33.3": "c55439edf65396f564079101f741c86fbbcb4f29cf683d13612aab8e0fd1e283",
+    "https://esm.sh/v117/ky@0.33.3/deno/ky.mjs": "d223f0f291053921b167a97dba66b8ef961ad8195d52cd55f22057ea23416a83",
+    "https://esm.sh/v117/ky@0.33.3/distribution/core/constants.d.ts": "9c23fb2acd5ed818c950c6802b22cafde46f1cd6217898ca4f0f726558576f48",
+    "https://esm.sh/v117/ky@0.33.3/distribution/errors/HTTPError.d.ts": "bec5524c0d8addd2e4d678b14434976fad37b83bacffa3ae65d14afe71a76e83",
+    "https://esm.sh/v117/ky@0.33.3/distribution/errors/TimeoutError.d.ts": "162f748e98203b829d8505f499c99ee0fc2200c11f3743d0e7124e7bf8ca253c",
+    "https://esm.sh/v117/ky@0.33.3/distribution/index.d.ts": "33e8773cbec165d42ba5b39476f2293cd0506a345cd7c2f706ab4b9c452479b5",
+    "https://esm.sh/v117/ky@0.33.3/distribution/types/ResponsePromise.d.ts": "b038f6f19c25ffb29ef3d8a89dc78fb69a03fdf7438e4b14e45ec5390b2039bc",
+    "https://esm.sh/v117/ky@0.33.3/distribution/types/common.d.ts": "20fcb118bebfb69ca52595ac4f0dd500fe457a5cedb0a4186a3b09cb20aad7c7",
+    "https://esm.sh/v117/ky@0.33.3/distribution/types/hooks.d.ts": "5654d6c3b3540f3768c8c8dd125c3bd6c44b03f70f6ddc1212a2cd3edb1f8039",
+    "https://esm.sh/v117/ky@0.33.3/distribution/types/ky.d.ts": "e2d296326628fde655ead9f8dd32c87ecc32b84f11511e7b4b7c3a778ba63d5a",
+    "https://esm.sh/v117/ky@0.33.3/distribution/types/options.d.ts": "35bb34e6a2af7d02645bb66aef564e41457fc33f293d1aba2da397b6da8866aa",
+    "https://esm.sh/v117/ky@0.33.3/distribution/types/response.d.ts": "fd7cdcf4a60ac72826774dddc27878b62ab87f74e574dfaa6a8818458f0f505d",
+    "https://esm.sh/v117/ky@0.33.3/distribution/types/retry.d.ts": "96a0e14854cadd119faac1df7e4fa92ddb0a6119fa7535b5a9b08903ecc4cf52"
   },
   "npm": {
     "specifiers": {
