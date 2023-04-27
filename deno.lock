@@ -70,6 +70,8 @@
     "https://deno.land/x/dax@0.31.0/src/result.ts": "0908b69c16b25c3b258f6b2ada12e124686df5f7ea2b98daa27a83973c7b118c",
     "https://deno.land/x/dax@0.31.0/src/shell.ts": "dbfe85c722826672ad72f87e07f3d9f4552eadf6933772617f1c0f3cd23c234d",
     "https://deno.land/x/dir@1.5.1/data_local_dir/mod.ts": "91eb1c4bfadfbeda30171007bac6d85aadacd43224a5ed721bbe56bc64e9eb66",
+    "https://deno.land/x/froebel@v0.23.2/throttle.ts": "aa76b46c26168cf77a6f77e24d34cf54a10dce306ac53e82c258f159f5693f35",
+    "https://deno.land/x/froebel@v0.23.2/types.ts": "cdd8c189a5b2a2731981bcd46699fd40ec2d8eddcbf06606c95ac0c77dabb322",
     "https://deno.land/x/outdent@v0.8.0/src/index.ts": "6dc3df4108d5d6fedcdb974844d321037ca81eaaa16be6073235ff3268841a22",
     "https://deno.land/x/which@0.3.0/mod.ts": "3e10d07953c14e4ddc809742a3447cef14202cdfe9be6678a1dfc8769c4487e6",
     "https://esm.sh/ky@0.33.3": "c55439edf65396f564079101f741c86fbbcb4f29cf683d13612aab8e0fd1e283",

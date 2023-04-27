@@ -1,15 +1,17 @@
-#!/usr/bin/env -S deno run -A
+#!/usr/bin/env -S deno run --unstable -A
 
 import $ from 'https://deno.land/x/dax@0.31.0/mod.ts'
 import { parse } from 'https://deno.land/std@0.182.0/path/mod.ts'
 import { mapLimit } from 'promise-utils/map.ts'
 import ky from 'https://esm.sh/ky'
+import throttle from 'https://deno.land/x/froebel@v0.23.2/throttle.ts'
 
 const { log } = console
 log()
 
 let files = []
 
+const s1 = Date.now()
 function readableBytes(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
@@ -39,44 +41,61 @@ for (let i = 0; i < Deno.args.length; i++) {
 files = files.filter(dl => dl.url)
 
 let pbtotal = $.progress('').noClear()
-let totalFiles = 0
 
-const result = await mapLimit(files, 4, async (dl, i) => {
+const state = {
+  totalFiles: 0,
+  totalSize: 0,
+  files: new Map(),
+}
+
+await mapLimit(files, 4, async (dl, i) => {
+  state.files.set(i, {
+    dl,
+    prefix: '',
+    size: '',
+    percent: '',
+    transferredBytes: 0,
+  })
+
   let res
   let prefix = ''
   let size = ''
   let percent = ''
+  const start = Date.now()
+  let benchmark
 
   const tempFilePath = await Deno.makeTempFile()
-
   const pb = $.progress('').noClear()
+  pbtotal.finish()
+
+  if (files.length >= 2) {
+    // const totalSize =
+    pbtotal = $.progress(`Downloaded... ${++state.totalFiles} of ${files.length} files`)
+  }
 
   try {
     res = await ky.get(dl.url, {
-      onDownloadProgress: (progress, _chunk) => {
+      onDownloadProgress: throttle((progress, _chunk) => {
         pb.message(dl.url)
+        state.files.set(i, progress.transferredBytes)
+
         percent = `${(progress.percent * 100).toFixed(0)}%`
-        size = `${readableBytes(progress.totalBytes).padStart(11)}`
-        prefix = `${percent.padStart(4)} ${size.padStart(6)}`
+        size = `${readableBytes(progress.totalBytes)}`
+        benchmark = `${((Date.now() - start) / 1000).toFixed(1).toString()}s`
+        prefix = ` ${benchmark.padEnd(6)} ${percent.padEnd(4)} ${size.padStart(8)}`
 
         pb.prefix(prefix)
-        pb.position(Math.round(progress.percent * 100))
-        pbtotal.forceRender()
-      },
+      }, 50),
     })
 
-    pbtotal.finish()
-
-    if (files.length >= 2)
-      pbtotal = $.progress(`Downloaded files ...${++totalFiles} of ${files.length}`)
-
     pbtotal.forceRender()
-
     const blob = await res.blob()
     await Deno.writeFile(tempFilePath, blob.stream())
     await Deno.rename(tempFilePath, `./${dl.output}`)
 
-    pb.prefix(`✅ OK ${size?.padStart(12)}`)
+    benchmark = `${((Date.now() - start) / 1000).toFixed(1).toString()}s`
+
+    pb.prefix(`✅ ${benchmark.padEnd(11)} ${size?.padStart(8)}`)
   }
   catch (err) {
     pb.prefix('❌ ERR   '.padEnd(17))
@@ -87,5 +106,8 @@ const result = await mapLimit(files, 4, async (dl, i) => {
   return res
 })
 
+pbtotal.prefix('Downloaded...')
 pbtotal.noClear()
 pbtotal?.finish()
+
+log(Date.now() - s1)
