@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+# set -o errexit
+
+#
+# Helpers
+#
+
+TTL=60s
+
+# https://konsolebox.io/blog/2022/05/14/general-command-line-parsing-solution-without-using-getopt-s.html
+function get_opt_arg {
+    if [[ $1 == *=* ]]; then
+        __=${1#*=}
+        return 1
+    elif [[ ${2+.} ]]; then
+        __=$2
+        return 0 # Tells that shift is needed
+    else
+        echo "No argument provided to option '$1'." >&2
+        exit 1
+    fi
+}
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+    --ttl=*)
+        get_opt_arg "$@" && shift
+        TTL=$__
+        ;;
+    --)
+        CMD="${@:2 }"
+        break
+        ;;
+    esac
+    shift
+done
+
+time-now() {
+  date +%s.%N
+}
+benchmark() {
+  local start=$1
+  local end=${2:-$(time-now)}
+  printf %.2f $(echo "$end - $start" | bc -l)
+}
+
+#
+# Main
+#
+
+
+DIR=$(pwd)
+
+TEMPDIR=$(mktemp -d)
+B64KEY=$(echo "$CMD" | base64)
+
+cd $TEMPDIR
+
+
+echo $B64KEY
+
+TIME=$(bkt --ttl $TTL -- bash -c "date +%s.%N; echo \"$B64KEY\" > \"$B64KEY.ttl\"") #&> /dev/null
+
+if [[ -f "$B64KEY.ttl" ]]; then
+  cd $DIR
+  eval "$CMD"
+  code=$?
+  echo "code: $code"
+
+  if [ $code -ne 0 ]; then
+    echo "code not zero"
+    cd $TEMPDIR
+    #bkt --force --ttl 1s -- bash -c "date +%s.%N; echo \"$B64KEY\" > \"$B64KEY.ttl\""
+    exit $code
+  fi
+
+  # TIME=$(bkt --ttl $TTL -- bash -c "date +%s.%N; echo \"$B64KEY\" > \"$B64KEY.ttl\"") #&> /dev/null
+
+else
+  echo "[cached] $CMD"
+  TTL_SINCE=$(printf %.1f $(benchmark $TIME) | bc -l)
+  echo "[$TTL_SINCE of $TTL]"
+fi
+
+
