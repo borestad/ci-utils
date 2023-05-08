@@ -1,11 +1,4 @@
 {
-  "imports": {
-    "std/": "https://deno.land/std@0.182.0/",
-    "dax/": "https://deno.land/x/dax@0.31.0/",
-    "fmt/": "https://deno.land/std@0.182.0/fmt/",
-    "promise-utils/": "https://cdn.jsdelivr.net/gh/blend/promise-utils/src/",
-    "deno/": "https://cdn.jsdelivr.net/gh/blend/promise-utils/src/"
-  },
   "fmt": {
     "options": {
       "semiColons": false,

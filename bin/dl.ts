@@ -2,7 +2,7 @@
 
 import $ from 'https://deno.land/x/dax@0.31.0/mod.ts'
 import { parse } from 'https://deno.land/std@0.182.0/path/mod.ts'
-import { mapLimit } from 'promise-utils/map.ts'
+import { mapLimit } from 'https://cdn.jsdelivr.net/gh/blend/promise-utils/src/map.ts'
 import ky from 'https://esm.sh/ky'
 import throttle from 'https://deno.land/x/froebel@v0.23.2/throttle.ts'
 
@@ -10,13 +10,17 @@ const { log } = console
 log()
 
 let files = []
-
-const s1 = Date.now()
 function readableBytes(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
 
+  // deno-lint-ignore no-explicit-any
   return `${1 * ((bytes / 1024 ** i).toFixed(1) as any)} ${sizes[i]}`
+}
+
+interface Download {
+  url: string
+  output: string
 }
 
 /*
@@ -27,7 +31,7 @@ function readableBytes(bytes: number) {
 */
 for (let i = 0; i < Deno.args.length; i++) {
   const arg = Deno.args[i]
-  const dl = { url: '', output: '' }
+  const dl: Download = { url: '', output: '' }
 
   if (/http(s?):/.test(arg)) {
     dl.url = arg
@@ -48,7 +52,7 @@ const state = {
   files: new Map(),
 }
 
-await mapLimit(files, 4, async (dl, i) => {
+await mapLimit(files, 4, async (dl: Download, i) => {
   let res
   let prefix = ''
   let size = ''
@@ -61,7 +65,7 @@ await mapLimit(files, 4, async (dl, i) => {
   pbtotal.finish()
 
   if (files.length >= 2)
-    pbtotal = $.progress(`Downloaded... ${++state.totalFiles} of ${files.length} files`)
+    pbtotal = $.progress(`Downloading... ${++state.totalFiles} of ${files.length} files`)
 
   try {
     res = await ky.get(dl.url, {
