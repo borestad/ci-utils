@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -o errexit
+# set -o errexit
 
 #
 # Helpers
@@ -23,32 +23,32 @@ BASENAME=$(basename $URL | sd '\?.*' '')
 OUTPUT=${2:-$BASENAME}
 TEMPFILE=$(mktemp)
 TEMPDIR=$(mktemp -d)
-# echo "Downloading: $OUTPUT ..."
+# printf "Downloading: $OUTPUT ..."
 
-cd $TEMPDIR
+# cd $TEMPDIR
 
-curl \
+ets -s -f '%s.%Ls ┃ ' \
+ curl \
   -# \
   --location \
   --keepalive \
   --connect-timeout 5 \
-  --retry 1 \
-  --fail \
+  --retry 0 \
+  --fail-with-body \
   --compressed \
-  -o "$OUTPUT" \
+  -o "$TEMPFILE" \
   "${URL}" 2>&1
 
-# wget \
-#   --compression auto \
-#   -O $OUTPUT \
-#   -q \
-#   --show-progress \
-#   --progress=bar:noscroll \
-#   "${URL}" \
-#   2>&1
+  code=$?
+
+  if [ $code -ne 0 ]; then
+    echo "❌ $URL"
+    exit $code
+  fi
 
 cd $DIR
 
-mv ${TEMPDIR}/* $PWD/$OUTPUT
+mkdir -p "$(dirname "$OUTPUT")"
+mv $TEMPFILE $OUTPUT
 
 echo "✅ $URL"

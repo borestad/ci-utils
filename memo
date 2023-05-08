@@ -66,7 +66,7 @@ SCOPE="memo.$SHAKEY"
 
 # Check if command is already cached
 cd $TEMPDIR
-TIME=$(bkt --cache-dir $CACHE_DIR --scope="$SCOPE" --ttl $TTL -- bash -c "date +%s.%N; echo \"$B64KEY\" > \"$B64KEY.ttl\"") #&> /dev/null
+TIME=$(bkt --cache-dir $CACHE_DIR --scope="$SCOPE" --ttl $TTL -- bash -c "date +%s.%N; echo \"$CMD\" > \"$B64KEY.ttl\"") #&> /dev/null
 
 # If not cached - run command again
 if [[ -f "$B64KEY.ttl" ]]; then

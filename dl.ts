@@ -49,14 +49,6 @@ const state = {
 }
 
 await mapLimit(files, 4, async (dl, i) => {
-  state.files.set(i, {
-    dl,
-    prefix: '',
-    size: '',
-    percent: '',
-    transferredBytes: 0,
-  })
-
   let res
   let prefix = ''
   let size = ''
@@ -68,16 +60,13 @@ await mapLimit(files, 4, async (dl, i) => {
   const pb = $.progress('').noClear()
   pbtotal.finish()
 
-  if (files.length >= 2) {
-    // const totalSize =
+  if (files.length >= 2)
     pbtotal = $.progress(`Downloaded... ${++state.totalFiles} of ${files.length} files`)
-  }
 
   try {
     res = await ky.get(dl.url, {
       onDownloadProgress: throttle((progress, _chunk) => {
         pb.message(dl.url)
-        state.files.set(i, progress.transferredBytes)
 
         percent = `${(progress.percent * 100).toFixed(0)}%`
         size = `${readableBytes(progress.totalBytes)}`
@@ -88,7 +77,6 @@ await mapLimit(files, 4, async (dl, i) => {
       }, 50),
     })
 
-    pbtotal.forceRender()
     const blob = await res.blob()
     await Deno.writeFile(tempFilePath, blob.stream())
     await Deno.rename(tempFilePath, `./${dl.output}`)
@@ -98,7 +86,7 @@ await mapLimit(files, 4, async (dl, i) => {
     pb.prefix(`✅ ${benchmark.padEnd(11)} ${size?.padStart(8)}`)
   }
   catch (err) {
-    pb.prefix('❌ ERR   '.padEnd(17))
+    pb.prefix('❌ ERR   '.padEnd(22))
     pb.message(`${dl.url} [${err}]`)
   }
 
@@ -109,5 +97,3 @@ await mapLimit(files, 4, async (dl, i) => {
 pbtotal.prefix('Downloaded...')
 pbtotal.noClear()
 pbtotal?.finish()
-
-log(Date.now() - s1)
