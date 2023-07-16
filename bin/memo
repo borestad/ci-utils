@@ -16,7 +16,8 @@
 
 TTL=60s
 DIR=$(pwd)
-CACHE_DIR=${BKT_TMPDIR:-"$HOME/.cache/bkt"}
+CACHE_DIR=${BKT_CACHE_DIR:-"$HOME/.cache/bkt"}
+mkdir -p $CACHE_DIR
 
 # https://konsolebox.io/blog/2022/05/14/general-command-line-parsing-solution-without-using-getopt-s.html
 function get_opt_arg {
@@ -84,7 +85,7 @@ if [[ -f "$B64KEY.ttl" ]]; then
   fi
 
 else
-  # Else, command is cached
-  TTL_SINCE=$(printf %.1f $(benchmark $TIME) | bc -l)
-  echo "[cached - $TTL_SINCE of $TTL] $CMD"
+  # Else, command is cached. Print some stats
+  TTL_SINCE=$(printf %.1f $(benchmark $TIME))
+  echo "⚡️ MEMOIZED: $TTL_SINCE / $TTL | $CMD"
 fi

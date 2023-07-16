@@ -3,7 +3,7 @@
 import $ from 'https://deno.land/x/dax@0.31.0/mod.ts'
 import { parse } from 'https://deno.land/std@0.182.0/path/mod.ts'
 import { mapLimit } from 'https://cdn.jsdelivr.net/gh/blend/promise-utils/src/map.ts'
-import ky from 'https://esm.sh/ky'
+import ky from 'https://esm.sh/ky@0.33.3'
 import throttle from 'https://deno.land/x/froebel@v0.23.2/throttle.ts'
 
 const { log } = console
