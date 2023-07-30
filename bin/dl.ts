@@ -52,7 +52,7 @@ const state = {
   files: new Map(),
 }
 
-await mapLimit(files, 4, async (dl: Download, i) => {
+await mapLimit(files, 8, async (dl: Download) => {
   let res
   let prefix = ''
   let size = ''
@@ -70,7 +70,7 @@ await mapLimit(files, 4, async (dl: Download, i) => {
   try {
     res = await ky.get(dl.url, {
       onDownloadProgress: throttle((progress, _chunk) => {
-        pb.message(dl.url)
+        pb.message(`${dl.url} → (${dl.output})`)
 
         percent = `${(progress.percent * 100).toFixed(0)}%`
         size = `${readableBytes(progress.totalBytes)}`

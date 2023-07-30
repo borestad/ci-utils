@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Inspired from this blog article : http://www.thegeekstuff.com/2013/10/time-command-format/
+
+if [[ ! -z "${CI}" ]]; then
+  # Github Actions color works in mysterious ways ...
+  BAR="[37m[47m_[49m[39m"
+else
+  BAR="[37m[47m [49m[39m"
+fi
+
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 command <argv>..."
+  echo ""
+  exit 1
+fi
+
+FILE=$(mktemp)
+
+time=$(command -v gtime || command -v /usr/bin/time)
+grep=$(command -v ggrep || command -v /usr/bin/grep)
+
+$time -o $FILE -f "       Total $BAR %es  [%P  %MK  %I/%O]" ets -s -f "%Mm  %S.%Ls $BAR" -- "$@"
+code=$?
+
+echo "             $BAR"
+cat $FILE
+exit $code

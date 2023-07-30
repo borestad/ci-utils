@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+dump-env() {
+  TOKEN="dump-env-$RANDOM-$RANDOM"
+
+  echo
+  echo "::group::Environment variables"
+  echo "::stop-commands::$TOKEN"
+  env|sort| egrep --color=always '^[^=]+' || true
+  echo "::$TOKEN::"
+  echo "::endgroup::"
+}
+
+dump-env

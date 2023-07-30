@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+while IFS=":" read -r a b; do
+  case $a in
+  "MemTotal")
+    mem_total="${b/kB/}"
+    ;;
+  "MemAvailable")
+    mem_avail=${b/kB/}
+    ;;
+  esac
+done < /proc/meminfo
+
+mem_used=$(((mem_total - mem_avail) / 1024))
+mem_total="$((mem_total / 1024))"
+cores="$(nproc --all)"
+
+echo "Cores:         $cores"
+echo "Memory used:   $mem_used Mb"
+echo "Memory total:  $mem_total Mb"
+echo "Public ip:     $(curl -sS --max-time 1 --connect-timeout 1 icanhazip.com)"

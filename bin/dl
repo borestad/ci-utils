@@ -23,9 +23,6 @@ BASENAME=$(basename $URL | sd '\?.*' '')
 OUTPUT=${2:-$BASENAME}
 TEMPFILE=$(mktemp)
 TEMPDIR=$(mktemp -d)
-# printf "Downloading: $OUTPUT ..."
-
-# cd $TEMPDIR
 
 ets -s -f '%s.%Ls ┃ ' \
  curl \
