@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # set -o errexit
+# set -e
 
 #
 # Helpers
@@ -14,23 +15,27 @@ benchmark() {
   printf %.2f $(echo "$end - $start" | bc -l)
 }
 
+touch2() {
+  mkdir -p "$(dirname "$1")" && touch "$1" ;
+}
+
 #
 # Main
 #
 DIR=$(pwd)
 URL=$1
-BASENAME=$(basename $URL | sd '\?.*' '')
+BASENAME=$(basename $URL | sed 's/?.*//g')
 OUTPUT=${2:-$BASENAME}
 TEMPFILE=$(mktemp)
-TEMPDIR=$(mktemp -d)
 
-ets -s -f '%s.%Ls ┃ ' \
- curl \
-  -# \
+curl \
+  --silent \
+  --show-error \
   --location \
   --keepalive \
-  --connect-timeout 5 \
-  --retry 0 \
+  --connect-timeout 10 \
+  --retry 1 \
+  --http2 \
   --fail-with-body \
   --compressed \
   -o "$TEMPFILE" \
@@ -39,13 +44,12 @@ ets -s -f '%s.%Ls ┃ ' \
   code=$?
 
   if [ $code -ne 0 ]; then
-    echo "❌ $URL"
+    echo "$URL"
     exit $code
   fi
 
 cd $DIR
-
-mkdir -p "$(dirname "$OUTPUT")"
+touch2 $OUTPUT
 mv $TEMPFILE $OUTPUT
 
-echo "✅ $URL"
+echo $(readlink -f $OUTPUT)
