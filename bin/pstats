@@ -18,10 +18,15 @@ fi
 FILE=$(mktemp)
 
 time=$(command -v gtime || command -v /usr/bin/time)
-grep=$(command -v ggrep || command -v /usr/bin/grep)
 
-$time -o $FILE -f "       Total $BAR %es  [%P  %MK  %I/%O]" ets -s -f "%Mm  %S.%Ls $BAR" -- "$@"
-code=$?
+if [ ! -z "$time" ]; then
+  $time -o $FILE -f "       Total $BAR %es  [%P  %MK  %I/%O]" ets -s -f "%Mm  %S.%Ls $BAR" -- "$@"
+  code=$?
+else
+  ets -s -f "%Mm  %S.%Ls $BAR" -- "$@"
+  code=$?
+fi
+
 
 echo "             $BAR"
 cat $FILE
