@@ -62,7 +62,8 @@ benchmark() {
 
 TEMPDIR=$(mktemp -d)
 B64KEY=$(echo "$CMD" | base64)
-SHAKEY=$(echo "$B64KEY" | shasum | cut -d ' ' -f1)
+# choose md5sum since it's available on most repos without perl dependencies
+SHAKEY=$(echo "$B64KEY" | md5sum | cut -d ' ' -f1)
 SCOPE="memo.$SHAKEY"
 
 # Check if command is already cached
