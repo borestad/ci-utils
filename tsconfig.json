@@ -18,6 +18,6 @@
     "experimentalDecorators": true,
     "checkJs": true,
     "moduleResolution": "node",
-    "strict": true
+    "strict": false
   }
 }

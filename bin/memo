@@ -87,5 +87,5 @@ if [[ -f "$B64KEY.ttl" ]]; then
 else
   # Else, command is cached. Print some stats
   TTL_SINCE=$(printf %.1f $(benchmark $TIME))
-  echo "⚡️ MEMOIZED: $TTL_SINCE / $TTL | $CMD"
+  echo "CACHED: $TTL_SINCE / $TTL | $CMD"
 fi

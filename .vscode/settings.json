@@ -26,9 +26,9 @@
     "typescriptreact",
     "yaml"
   ],
-  "prettier.enable": false,
   "files.associations": {
     "deno.json": "jsonc",
     "dprint.json": "jsonc"
-  }
+  },
+  "prettier.enable": false
 }

@@ -25,7 +25,7 @@ interface Download {
 
 /*
   Some magic to allow extremely simple input/renaming functinality like
-  dl https://speedtest.tele2.net/100Mb.zip http://speedtest.tele2.net/10Mb.zip foobar.zip
+  dl https://speedtest.tele2.net/100MB.zip http://speedtest.tele2.net/10MB.zip foobar.zip
     { url: "https://speedtest.tele2.net/100Mb.zip", output: "100Mb.zip" },
     { url: "http://speedtest.tele2.net/10Mb.zip", output: "foobar.zip" }
 */
@@ -69,7 +69,7 @@ await mapLimit(files, 8, async (dl: Download) => {
 
   try {
     res = await ky.get(dl.url, {
-      onDownloadProgress: throttle((progress, _chunk) => {
+      onDownloadProgress: throttle((progress, chunk) => {
         pb.message(`${dl.url} → (${dl.output})`)
 
         percent = `${(progress.percent * 100).toFixed(0)}%`

@@ -4,11 +4,42 @@
 # set -e
 
 #
+# Argument parsing
+#
+CI=false
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -o) OUTPUT="$2"; shift 2;;
+    -ttl) TTL="$2"; shift 2;;
+    -ci) CI="true"; shift 1;;
+
+    --output=*) OUTPUT="${1#*=}"; shift 1;;
+    --ttl=*) TTL="${1#*=}"; shift 1;;
+    --ci=*) CI="${1#*=}"; shift 1;;
+    --output|--ttl|--ci) echo "$1 requires an argument" >&2; exit 1;;
+
+    -*) echo "unknown option: $1" >&2; exit 1;;
+    *) URL="$1"; shift 1;;
+  esac
+done
+
+function exists() {
+    builtin command -V "$1" >/dev/null 2>&1
+}
+
+if ! exists xh; then
+  CI=true
+fi
+
+#
 # Helpers
 #
+
 time-now() {
   date +%s.%N
 }
+
 benchmark() {
   local start=$1
   local end=${2:-$(time-now)}
@@ -22,34 +53,68 @@ touch2() {
 #
 # Main
 #
+
 DIR=$(pwd)
-URL=$1
 BASENAME=$(basename $URL | sed 's/?.*//g')
-OUTPUT=${2:-$BASENAME}
-TEMPFILE=$(mktemp)
+OUTPUT=${OUTPUT:-$BASENAME}
+TEMPDIR=$(mktemp -d)
+TEMPLOG=$(mktemp)
 
-curl \
-  --silent \
-  --show-error \
-  --location \
-  --keepalive \
-  --connect-timeout 10 \
-  --retry 1 \
-  --http2 \
-  --fail-with-body \
-  --compressed \
-  -o "$TEMPFILE" \
-  "${URL}" 2>&1
+# Precreate some fancy path (i.e a/b/c/100.zip)
+touch2 $TEMPDIR/$OUTPUT
+cd $TEMPDIR
 
-  code=$?
 
-  if [ $code -ne 0 ]; then
-    echo "$URL"
-    exit $code
-  fi
+if [[ "$CI" == "true" ]]; then
+  args='--no-progress-meter --silent'
+else
+  args='--progress-bar'
+fi
+
+start=$(time-now)
+
+if [[ "$CI" == "true" ]]; then
+  echo "Downloading $OUTPUT from $URL"
+
+  args='--no-progress-meter --silent'
+  COLUMNS=80 curl \
+    $args \
+    --disable \
+    --show-error \
+    --location \
+    --keepalive \
+    --connect-timeout 10 \
+    --retry 1 \
+    --http2 \
+    --fail-with-body \
+    --compressed \
+    -o "$OUTPUT" \
+    ${URL} 2>&1
+else
+  COLUMNS=80 xh \
+    -p bB \
+    --check-status \
+    --download \
+    --output "$OUTPUT" \
+    ${URL} 2>&1
+fi
+
+code=$?
+
+# cat $TEMPLOG
+
+if [ $code -ne 0 ]; then
+  echo "❌ [Error: $code] $URL"
+  exit $code
+fi
 
 cd $DIR
 touch2 $OUTPUT
-mv $TEMPFILE $OUTPUT
+mv $TEMPDIR/$OUTPUT $OUTPUT
 
-echo $(readlink -f $OUTPUT)
+stop=$(benchmark $start)
+
+if [[ "$CI" == "true" ]]; then
+  SIZE=$(du -bh $OUTPUT | xargs | cut -d ' ' -f1)
+  echo "DONE ... in ${stop}s. $SIZE"
+fi
