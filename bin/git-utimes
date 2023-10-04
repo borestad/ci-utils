@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# reset environment variables that could interfere with normal usage
+unset -v GREP_OPTIONS
+# put all utility functions here
+
+# make a temporary file
+git_extra_mktemp() {
+    mktemp -t "$(basename "$0")".XXXXXXX
+}
+
+git_extra_default_branch() {
+    local extras_default_branch init_default_branch
+    extras_default_branch=$(git config --get git-extras.default-branch)
+    init_default_branch=$(git config --get init.defaultBranch)
+    if [ -n "$extras_default_branch" ]; then
+        echo "$extras_default_branch"
+    elif [ -n "$init_default_branch" ]; then
+        echo "$init_default_branch"
+    else
+        echo "main"
+    fi
+}
+#
+# check whether current directory is inside a git repository
+#
+
+is_git_repo() {
+  git rev-parse --show-toplevel > /dev/null 2>&1
+  result=$?
+  if test $result != 0; then
+    >&2 echo 'Not a git repo!'
+    exit $result
+  fi
+}
+
+is_git_repo
+#
+# Change files modification time to their last commit date
+#
+if [ "$1" = "--touch" ]; then
+  # Internal use option only just to parallelize things.
+  newer_flag=""
+  [ "$2" = "--newer" ] && newer_flag="true"
+  shift 2
+  bsd=$(date -j > /dev/null 2>&1 && echo 'true')
+  if [ -n "$bsd" ]; then
+    stat_flags="-f %m"
+    date_flags="-r"
+  else
+    stat_flags="-c %Y"
+    date_flags="-d@"
+  fi
+  for f; do
+    git_s=$(git --no-pager log --no-renames --pretty=format:%ct -1 @ -- "$f" 2>/dev/null)
+    # shellcheck disable=SC2086
+    mod_s=$(stat $stat_flags "$f" 2>/dev/null)
+    if [ -n "$git_s" ] && [ -n "$mod_s" ] && [ "$mod_s" -ne "$git_s" ]; then
+      if [ "$mod_s" -gt "$git_s" ] || [ -z "$newer_flag" ]; then
+        # shellcheck disable=SC2086
+        t=$(date $date_flags$git_s '+%Y%m%d%H%M.%S')
+        echo "+ touch -h -t $t $f" >&2
+        touch -h -t "$t" "$f"
+      fi
+    fi
+  done
+else
+  opt_r=$(xargs -r false < /dev/null > /dev/null 2>&1 && echo '-r')
+
+  # `-n` should be limited or parallelization will not give effect,
+  # because all args will go into single worker.
+  NPROC=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null)
+  # don't touch files that have been modified in the worktree or index
+  #   bsd doesn't have `-z` option for `comm` and `cut`, so use `tr` as work around
+  prefix="$(git rev-parse --show-prefix) "
+  # shellcheck disable=SC2086
+  comm -23 <(git ls-tree -z -r --name-only --full-name @ | tr '\0' '\n' | sort) \
+           <(git status -z --porcelain | tr '\0' '\n' | cut -c 4- | sort) \
+  | cut -c ${#prefix}- \
+  | tr '\n' '\0' \
+  | xargs -0 -P"${NPROC:-1}" -n 24 $opt_r git utimes --touch "$1"
+fi
