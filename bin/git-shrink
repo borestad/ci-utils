@@ -1,0 +1,34 @@
+#!/usr/bin/env zsh
+
+# https://stackoverflow.com/questions/38171899/how-to-reduce-the-depth-of-an-existing-git-clone/46004595#46004595
+
+function run() {
+  if command -v ets &> /dev/null; then
+    ets -s -f "%s.%Ls ┃ " $*
+  else
+    $*
+  fi
+}
+
+run bash -c "
+  hr
+  echo 'BEFORE'
+  git count-objects -vH
+
+  hr
+  echo '🦄 Remove all tags:'
+  git tag -l | xargs git tag -d
+
+  hr
+  echo '🦄 Clear the reflog:'
+  git reflog expire --expire=now --expire-unreachable=all --all --verbose
+
+  hr
+  echo '🦄 Delete all dangling objects'
+  git gc --prune=now --progress
+
+  hr
+  echo 'AFTER'
+  git count-objects -vH
+  hr
+"

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# set -o errexit
+# set -e
+
+# Kill sessions that's been lurking for days
+for i in `who|awk '{print $2,$5}' | grep days |cut -d' ' -f1`; do
+  fuser -k /dev/$i;
+done
