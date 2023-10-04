@@ -1,0 +1,178 @@
+#!/bin/sh
+#
+# run-one - Simple process supervision/singleton-enforcement.
+#
+# Places lock files in ${XDG_CACHE_HOME:${HOME}/.cache}/run-one
+# A CACHEDIR.TAG file will be created there if not already found.
+#
+#   run-one - run just one instance of the given command/argument list.
+#
+#   run-this-one - kill any other instance of the given command started
+#                  via run-this-one or run-one*, then run this one.
+#
+#   run-one-constantly - run-one, supervise the process.
+#
+#   run-one-until-success - run-one, supervise until a successful exit.
+#
+#   run-one-until-failure - run-one, supervise until an unsuccessful exit.
+#
+###############################################################################
+#
+# Implements (more or less) the same interface as the package of the same name
+# by Dustin Kirkland: https://launchpad.net/run-one
+#
+###############################################################################
+# Copyright (c) 2017 Thomas Hurst <tom@hur.st>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+###############################################################################
+# Version: 0.9.0-dev
+###############################################################################
+
+PROG="run-one"
+
+# Time limit for pwait/ps + sleep loop in run-this-one
+KILL_WAIT_TIMEOUT=60
+
+# Exit codes - see sysexits.h
+EX_USAGE=64
+EX_UNAVAILABLE=69
+EX_CANTCREAT=73
+EX_TEMPFAIL=75
+
+###############################################################################
+set -ue
+
+errexit() {
+	rc=$1
+	shift
+	echo "$@" 1>&2
+	exit "$rc"
+}
+
+[ $# -eq 0 ] && errexit $EX_USAGE "Usage: $0 [command ..]"
+
+has_command() {
+	command -v "$@" >/dev/null 2>&1
+}
+
+# This command must accept parameters [lockfile] [command [arguments ..]]
+if has_command lockf; then
+	LOCK_COMMAND="lockf -st0"
+elif has_command flock; then
+	LOCK_COMMAND="flock -xnE${EX_TEMPFAIL}"
+else
+	errexit $EX_UNAVAILABLE "ERROR: Unable to find lockf(1) or flock(1) in PATH"
+fi
+
+locked_command() {
+	# shellcheck disable=SC2086
+	exec $LOCK_COMMAND "$@"
+}
+
+# Killing lockf/flock does not kill the running command - kill its children and
+# wait for it to exit naturally.
+kill_locked_command() {
+	if pids=$(pgrep -u "$(id -un)" -d " " -f "^$LOCK_COMMAND .*$1"); then
+		for pid in $pids; do
+			# Diagnostics like "Operation not permitted" might be useful for the user.
+			pkill -P "$pid" || true
+		done
+		# shellcheck disable=SC2086
+		await_pids $pids
+	fi
+}
+
+await_pids() {
+	if has_command pwait && has_command timeout; then
+		if ! timeout $KILL_WAIT_TIMEOUT pwait "$@" >/dev/null 2>&1; then
+			errexit $EX_UNAVAILABLE "${KILL_WAIT_TIMEOUT} second timeout waiting for pids: $*"
+		fi
+	else
+		limit=$KILL_WAIT_TIMEOUT
+		while ps "$@" >/dev/null 2>&1; do
+			limit=$(( limit - 1 ))
+			[ $limit -eq 0 ] && errexit $EX_UNAVAILABLE "${KILL_WAIT_TIMEOUT} second timeout waiting for pids: $*"
+			sleep 1
+		done
+	fi
+}
+
+hash_stdin() {
+	if has_command sha256; then
+		sha256
+	elif has_command sha256sum; then
+		sha256sum | cut -c 1-64
+	else
+		errexit $EX_UNAVAILABLE "ERROR: Unable to find sha256(1) or sha256sum(1) in PATH"
+	fi
+}
+
+: "${XDG_CACHE_HOME:=${HOME}/.cache}"
+
+LOCKDIR="${XDG_CACHE_HOME}/${PROG}"
+
+mkdir -p "$LOCKDIR" || errexit $? "ERROR: Couldn't create lock directory.  Please set XDG_CACHE_HOME."
+[ -w "$LOCKDIR" ]   || errexit $EX_CANTCREAT "ERROR: Lock directory is unwritable.  Please set XDG_CACHE_HOME."
+
+[ -e "${LOCKDIR}/CACHEDIR.TAG" ] || cat >"${LOCKDIR}/CACHEDIR.TAG" <<EOT
+Signature: 8a477f597d28d172789f06886806bc55
+# This file is a cache directory tag created by ${PROG}.
+# For information about cache directory tags, see:
+#	http://www.brynosaurus.com/cachedir/
+EOT
+
+HASH=$(for arg in "$@"; do
+		echo "$arg" | sed -e 's/ARGV/\\ARGV/g' -e 's/^\(.*\)$/ARGV(\1)/'
+	done | hash_stdin)
+
+LOCKFILE="${LOCKDIR}/${HASH}.lock"
+
+NAME="$(basename "$0")"
+case "$NAME" in
+	run-one)
+		locked_command "$LOCKFILE" "$@"
+	;;
+	run-this-one)
+		kill_locked_command "$HASH"
+		locked_command "$LOCKFILE" "$@"
+	;;
+	run-one-constantly|run-one-until-success|run-one-until-failure)
+		# shellcheck disable=SC2016
+		locked_command "$LOCKFILE" /bin/sh -uec 'backoff=1
+		while true; do
+			if "$@"; then
+				[ "$0" = "run-one-until-success" ] && exit
+				backoff=1
+			else
+				rc=$?
+				[ "$0" = "run-one-until-failure" ] && exit $rc
+
+				backoff=$((backoff * 2))
+				[ $backoff -gt 60 ] && backoff=60
+
+				logger -t "${0}[$$]" "last run failed (rc=$rc); sleeping $backoff seconds"
+			fi
+			sleep "$backoff"
+		done' "$NAME" "$@"
+	;;
+	*)
+		errexit $EX_USAGE "Unknown command: $NAME"
+	;;
+esac

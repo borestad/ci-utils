@@ -1,2 +1,4 @@
 # ci-utils
-Common utils &amp; binaries used in CI-pipelines / scripts etc.
+Common utils &amp; scripts used in CI-pipelines / scripts / cronjobs etc.
+
+See also: https://github.com/borestad/static-binaries
