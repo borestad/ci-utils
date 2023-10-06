@@ -50,3 +50,6 @@ function clone {
 }
 
 eval "$(zoxide init bash)"
+
+. "/opt/.asdf/asdf.sh"
+. "/opt/.asdf/completions/asdf.bash"
