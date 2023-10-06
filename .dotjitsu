@@ -1,0 +1,50 @@
+
+# =============================================================================
+# ✨ HELPERS
+# =============================================================================
+NUM_CORES=`getconf _NPROCESSORS_ONLN`
+
+
+# =============================================================================
+# ✨ Settings
+# =============================================================================
+TERM=xterm-256color
+shopt -s histappend
+export LS_OPTIONS='--color=auto'
+
+# =============================================================================
+# ✨ Aliases
+# =============================================================================
+alias EDITOR=nano
+alias VISUAL=nano
+
+mk ()       { mkdir -p "$@" && cd "$_"; }
+mkt ()      { hr -; cd $(mktemp -d); pwd; echo; }
+
+alias zr='echo "Reloading $SHELL..."; reset; exec $SHELL -l;'
+alias rg='rg --hidden --smart-case'
+
+alias exa='exa --group-directories-first --color=always'
+alias ls='ls --color --group-directories-first'
+alias l='exa -Ga --icons'
+alias ll='exa --icons -la --no-permissions --no-user -T -L1 --icons'
+alias lll='exa --icons -la --no-permissions --no-user -T --git --icons -g -R --git-ignore -L2 -I "*.git"'
+
+alias -- -="cd -"
+alias ..="cd .."
+alias ...='cd ../../'
+
+function gdu() {
+  timeout 10m /usr/local/bin/gdu -a "$@" || (reset; stty sane &> /dev/null; tput reset &> /dev/null; reset; echo "[timeout]: 10m gdu")
+}
+
+function clone {
+  url=$1;
+  reponame=$(echo $url | awk -F/ '{print $NF}' | sed -e 's/.git$//');
+  echo "🦄 Reponame: $reponame"
+  echo
+  git clone $*;
+
+  cd $reponame;
+  echo "" && git log --oneline --graph --date=short -n 5 && echo ""
+}
