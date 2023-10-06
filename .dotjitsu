@@ -51,5 +51,7 @@ function clone {
 
 eval "$(zoxide init bash)"
 
-. "/opt/.asdf/asdf.sh"
-. "/opt/.asdf/completions/asdf.bash"
+export ASDF_DATA_DIR=/opt/.asdf
+export ASDF_DIR=/opt/asdf
+. /opt/asdf/asdf.sh
+. /opt/asdf/completions/asdf.bash
