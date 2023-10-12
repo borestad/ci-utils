@@ -50,8 +50,11 @@ function clone {
 }
 
 eval "$(zoxide init bash)"
+eval "$(starship init bash)"
 
-export ASDF_DATA_DIR=/opt/.asdf
-export ASDF_DIR=/opt/asdf
-. /opt/asdf/asdf.sh
-. /opt/asdf/completions/asdf.bash
+if [ -f /opt/asdf/asdf.sh ]; then
+  export ASDF_DATA_DIR=/opt/.asdf
+  export ASDF_DIR=/opt/asdf
+  . /opt/asdf/asdf.sh
+  . /opt/asdf/completions/asdf.bash
+fi
