@@ -15,8 +15,8 @@ export LS_OPTIONS='--color=auto'
 # =============================================================================
 # ✨ Aliases
 # =============================================================================
-alias EDITOR=nano
-alias VISUAL=nano
+export EDITOR=nano
+export VISUAL=nano
 
 mk ()       { mkdir -p "$@" && cd "$_"; }
 mkt ()      { hr -; cd $(mktemp -d); pwd; echo; }
