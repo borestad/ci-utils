@@ -4,9 +4,9 @@
 
 function run() {
   if command -v ets &> /dev/null; then
-    ets -s -f "%s.%Ls ┃ " $*
+    ets -s -f "%s.%Ls ┃ " $@
   else
-    $*
+    $@
   fi
 }
 
