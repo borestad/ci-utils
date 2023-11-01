@@ -21,6 +21,8 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+TERM=xterm-256color
+
 if command -v tput &>/dev/null; then
   COLS="$(tput cols)"
 else
@@ -40,7 +42,7 @@ hr() {
             LINE="$LINE$WORD"
         done
 
-        printf "\e[30m${LINE:0:$COLS}\e[0m\n"
+        printf "${LINE:0:$COLS}\n"
     fi
 }
 
