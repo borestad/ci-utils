@@ -25,7 +25,7 @@ run bash -c "
 
   hr
   echo '🦄 Delete all dangling objects'
-  git gc --prune=now --progress
+  git gc --prune=now
 
   hr
   echo 'AFTER'
