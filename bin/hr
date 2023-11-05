@@ -42,7 +42,7 @@ hr() {
             LINE="$LINE$WORD"
         done
 
-        printf "${LINE:0:$COLS}\n"
+        printf -- "${LINE:0:$COLS}\n"
     fi
 }
 

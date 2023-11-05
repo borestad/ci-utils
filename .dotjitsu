@@ -19,7 +19,7 @@ export EDITOR=nano
 export VISUAL=nano
 
 mk ()       { mkdir -p "$@" && cd "$_"; }
-mkt ()      { hr -; cd $(mktemp -d); pwd; echo; }
+mkt ()      { cd $(mktemp -d); pwd; echo; }
 
 alias zr='echo "Reloading $SHELL..."; reset; exec $SHELL -l;'
 alias rg='rg --hidden --smart-case'
