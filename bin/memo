@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 # set -o errexit
-
-
 ###
 #
 # Usage example:
@@ -39,6 +37,10 @@ while [[ $# -gt 0 ]]; do
         get_opt_arg "$@" && shift
         TTL=$__
         ;;
+    --cache-dir=*)
+        get_opt_arg "$@" && shift
+        CACHE_DIR=$__
+        ;;
     --)
         CMD="${@:2 }"
         break
@@ -47,9 +49,8 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-time-now() {
-  date +%s.%N
-}
+time-now() { date +%s.%N; }
+
 benchmark() {
   local start=$1
   local end=${2:-$(time-now)}
@@ -59,11 +60,10 @@ benchmark() {
 #
 # Main
 #
-
 TEMPDIR=$(mktemp -d)
-B64KEY=$(echo "$CMD" | base64)
-# choose md5sum since it's available on most repos without perl dependencies
-SHAKEY=$(echo "$B64KEY" | md5sum | cut -d ' ' -f1)
+B64KEY=$(echo "$CMD" | base64 -w0)
+SHAKEY=$(echo "$B64KEY" | sha1sum | awk '{print $1}')
+
 SCOPE="memo.$SHAKEY"
 
 # Check if command is already cached
@@ -88,5 +88,6 @@ if [[ -f "$B64KEY.ttl" ]]; then
 else
   # Else, command is cached. Print some stats
   TTL_SINCE=$(printf %.1f $(benchmark $TIME))
-  echo "CACHED: $TTL_SINCE / $TTL | $CMD"
+  printf "ℹ memo: ${TTL_SINCE}s of $TTL\n"
+  printf "❯ $CMD\n"
 fi
