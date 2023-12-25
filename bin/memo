@@ -60,7 +60,9 @@ benchmark() {
 #
 # Main
 #
-TEMPDIR=$(mktemp -d)
+mkdir -p /tmp/memo
+TEMPDIR=$(mktemp -d -p /tmp/memo)
+
 B64KEY=$(echo "$CMD" | base64 -w0)
 SHAKEY=$(echo "$B64KEY" | sha1sum | awk '{print $1}')
 
@@ -90,3 +92,6 @@ else
   TTL_SINCE=$(printf %.0f $(benchmark $TIME))
   printf "🔅 memo: (${TTL_SINCE}s of $TTL) ❯ $CMD \n"
 fi
+
+# Cleanup
+rm -rf $TEMPDIR
