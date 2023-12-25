@@ -60,9 +60,8 @@ benchmark() {
 #
 # Main
 #
-mkdir -p /tmp/memo
-TEMPDIR=$(mktemp -d -p /tmp/memo)
 
+TEMPDIR=$(mktemp -d -t 'memo.XXXX')
 B64KEY=$(echo "$CMD" | base64 -w0)
 SHAKEY=$(echo "$B64KEY" | sha1sum | awk '{print $1}')
 
