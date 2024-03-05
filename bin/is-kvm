@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+pid2=$(ps -p 2 | grep kthreadd | wc -l)
+[ $pid2 -gt 0 ]
+

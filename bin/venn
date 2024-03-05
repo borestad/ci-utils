@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+
+# https://github.com/ilevantis/venn
+
+# Reset all variables that might be set
+set1='null'
+set1name='null'
+set2='null'
+set2name='null'
+setsu='null'
+setsuname='null'
+mode=c
+
+while :; do
+    case $1 in
+        -h|--help)   # display a synopsis, then exit.
+            printf "Usage:  venn file1 file2 [option [file3]]
+
+Options:
+-a (--anotb)    Prints lines found in file1 AND NOT in file2.
+
+-b (--bnota)    Prints lines found in file2 AND NOT in file1.
+
+-c (--aandb)    Prints lines found in file1 AND in file2. This is the default
+                mode if no option is given.
+
+-d (--notanotb) Takes a file (file3) as an option argument. All lines present
+                in file1 and file2 must be present in file3. Prints lines
+                found in file3 NOT found in file1 AND file2.
+
+-e              Takes a file (file3) as an option argument. Outputs 4 files
+                containing the results of modes -a, -b, -c, -d.
+
+-s (--testsuper)Takes a file (file3) as an option argument. Shows the user
+                if the lines in file3 are a superset of lines in file1 and
+                file2.
+
+-h              Prints this message.\n"
+            exit
+            ;;
+
+        -a|--anotb)
+            mode=a
+            ;;
+
+        -b|--bnota)
+            mode=b
+            ;;
+
+        -c|--aandb)
+            mode=c
+            ;;
+
+        -d|--notanotb)
+            if [ -n "$2" ]; then
+                if [ -f "$2" ]; then
+                    setsu=$2
+                    mode=d
+                    shift
+                else
+                    printf "ERROR: $1 requires a valid file as an argument.\n" >&2
+                    exit 1
+                fi
+            else
+                printf "ERROR: $1 requires a non-empty option argument.\n" >&2
+                exit 1
+            fi
+            ;;
+
+        -e)
+            if [ -n "$2" ]; then
+                if [ -f "$2" ]; then
+                    setsu=$2
+                    mode=e
+                    shift
+                else
+                    printf "ERROR: $1 requires a valid file as an argument.\n" >&2
+                    exit 1
+                fi
+            else
+                printf "ERROR: $1 requires a non-empty option argument.\n" >&2
+                exit 1
+            fi
+            ;;
+
+        -s|--testsuper)
+            if [ -n "$2" ]; then
+                if [ -f "$2" ]; then
+                    setsu=$2
+                    setsuname=$(basename "$setsu")
+                    mode=s
+                    shift
+                else
+                    printf "ERROR: $1 requires a valid file as an argument.\n" >&2
+                    exit 1
+                fi
+            else
+                printf "ERROR: $1 requires a non-empty option argument.\n" >&2
+                exit 1
+            fi
+            ;;
+
+        -?*)
+            printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+            ;;
+
+        *)    # Default case: If a file: ingest it, if no more options: break out of the loop.
+            if [[ $# == 0 ]]; then
+                break
+            else
+                if [ -f $1 ]; then
+                    if [[ "$set1" != 'null' ]]; then
+                        if [[ "$set2" != 'null' ]]; then
+                            printf 'Error: too many file parameters.\n' >&2
+                            exit 1
+                        else
+                            set2=$1
+                            set2name=$(basename "$set2")
+                        fi
+                    else
+                        set1=$1
+                        set1name=$(basename "$set1")
+                    fi
+                fi
+            fi
+            ;;
+    esac
+    shift
+done
+
+
+case $mode in
+    a)
+        sort "$set1" "$set2" "$set2" | uniq -u
+        ;;
+
+    b)
+        sort "$set1" "$set1" "$set2" | uniq -u
+        ;;
+
+    c)
+        sort "$set1" "$set2" | uniq -d
+        ;;
+
+    d)
+        sort "$setsu" "$set1" "$set2" | uniq -u
+        ;;
+
+    e)
+        sort "$set1" "$set2" "$set2" | uniq -u > venn-a-$set1name-$set2name
+        sort "$set1" "$set1" "$set2" | uniq -u > venn-b-$set1name-$set2name
+        sort "$set1" "$set2" | uniq -d > venn-c-$set1name-$set2name
+        sort "$setsu" "$set1" "$set2" | uniq -u > venn-d-$set1name-$set2name
+        ;;
+
+    s)
+        if [[ $(sort "$setsu" "$setsu" "$set1" | uniq -u) ]]; then
+            printf "$setsuname is not a superset of $set1name.\n"
+        else
+            printf "$setsuname is a superset of $set1name.\n"
+        fi
+
+        if [[ $(sort "$setsu" "$setsu" "$set2" | uniq -u) ]]; then
+            printf "$setsuname is not a superset of $set2name.\n"
+        else
+            printf "$setsuname is a superset of $set2name.\n"
+        fi
+        ;;
+esac
+
+exit
