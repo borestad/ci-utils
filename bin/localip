@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+#
+# Update /etc/localip
+#
+ip route get 1.2.3.4 | awk '{print $7}' | awk '{print $1}' | tee /etc/localip
