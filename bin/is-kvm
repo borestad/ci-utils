@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
+([ -d /etc/pve ] && [ -f /usr/bin/pveam ]) && exit 1
 ps -p 2 | grep kthreadd &> /dev/null;
