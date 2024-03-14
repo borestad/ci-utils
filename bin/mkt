@@ -1,0 +1,3 @@
+#!/usr/bin/env dash
+
+cd $(mktemp -d); pwd; echo;
