@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Extra args
+type -p pveversion && args="-l proxmox"
+
+fastfetch \
+  --structure Title:Separator:OS:Host:Kernel:Uptime:Packages:Shell:CPU:GPU:Memory:Disk:Battery:PowerAdapter:Break:LocalIP:PublicIP \
+  --publicip-url icanhazip.com \
+  --publicip-timeout 200 ${args}
