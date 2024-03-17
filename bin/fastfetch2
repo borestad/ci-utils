@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Extra args
-type -p pveversion && args="-l proxmox"
+type -p pveversion &> /dev/null && args="-l proxmox"
 
 fastfetch \
-  --structure Title:Separator:OS:Host:Kernel:Uptime:Packages:Shell:CPU:GPU:Memory:Disk:Battery:PowerAdapter:Break:LocalIP:PublicIP \
-  --publicip-url icanhazip.com \
-  --publicip-timeout 200 ${args}
+  --structure Title:Separator:OS:Host:Kernel:Uptime:Packages:CPU:GPU:Memory:Disk:Battery:PowerAdapter:Separator:LocalIP:PublicIP:Break \
+  --thread true \
+  --publicip-url http://icanhazip.com \
+  --publicip-timeout 50 ${args}
