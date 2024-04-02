@@ -18,13 +18,12 @@
 #  └────────────────────────┴─────────────────┘   └───────┴─────────────────┴───────┘
 #                                                  Uppercase = Reset a style: \e[2*m
 
-
 pf() { printf "$@"; }
-c() { [ $# == 0 ] && pf "\e[0m" || pf "$1" | sed 's/\(.\)/\1;/g;s/\([SDIUFNHT]\)/2\1/g;s/\([KRGYBMCW]\)/3\1/g;s/\([krgybmcw]\)/4\1/g;y/SDIUFNHTsdiufnhtKRGYBMCWkrgybmcw/12345789123457890123456701234567/;s/^\(.*\);$/\\e[\1m/g'; }
-cecho() { [ $# == 1 ] && echo -e "$1" || echo -e "$(c $1)${2}$(c)"; }
+c() { [[ $# == 0 ]] && pf "\e[0m" || pf "$1" | sed 's/\(.\)/\1;/g;s/\([SDIUFNHT]\)/2\1/g;s/\([KRGYBMCW]\)/3\1/g;s/\([krgybmcw]\)/4\1/g;y/SDIUFNHTsdiufnhtKRGYBMCWkrgybmcw/12345789123457890123456701234567/;s/^\(.*\);$/\\e[\1m/g'; }
+cecho() { [[ $# == 1 ]] && echo -e "$1" || echo -e "$(c $1)${2}$(c)"; }
 
 cechon() { echo -en "$(c $1)${2}$(c)"; }
-cprintf() { [ $# == 1 ] && pf "$1" || pf "$(c $1)${2}$(c)"; }
+cprintf() { [[ $# == 1 ]] && pf "$1" || pf "$(c $1)${2}$(c)"; }
 
 log.ok() { cechon Kg " OK "; pf " "; }
 log.error() { cechon Wr " Error "; pf " "; }
