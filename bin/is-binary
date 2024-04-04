@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+grep -m1 '' "$1"  2>&1 | grep -q 'binary file matches'
