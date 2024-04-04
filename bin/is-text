@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+grep -rIlq '' "$1" &> /dev/null
