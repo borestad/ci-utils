@@ -5,6 +5,6 @@ type -p pveversion &> /dev/null && args="-l proxmox"
 
 fastfetch \
   -s Title:Separator:OS:Host:Kernel:Uptime:Packages:CPU:GPU:Memory:Disk:Battery:PowerAdapter:Separator:LocalIP:command:Break \
-  --command-text '\curl -sL http://ipv4.icanhazip.com' --command-key 'Public IP' \
+  --command-text '\wget -q -O - http://ipv4.icanhazip.com' --command-key 'Public IP' \
   --pipe false \
   ${args} | \tac | \tac
