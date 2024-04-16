@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 # Support for gnugrep and busybox grep
-grep -m1 '' "$1"  2>&1 | grep -q 'binary file matches|ELF'
+grep -m1 '' "$1"  2>&1 | grep -Eq 'binary file matches|ELF'
