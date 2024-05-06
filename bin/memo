@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # set -o errexit
+
+
 ###
 #
 # Usage example:
@@ -54,14 +56,13 @@ time-now() { date +%s.%N; }
 benchmark() {
   local start=$1
   local end=${2:-$(time-now)}
-  printf %.2f $(echo "$end - $start" | bc -l)
+  echo "$end $start" | awk '{print $1 - $2}'
 }
 
 #
 # Main
 #
-
-TEMPDIR=$(mktemp -d -t 'memo.XXXX')
+TEMPDIR=$(mktemp -d)
 B64KEY=$(echo "$CMD" | base64 -w0)
 SHAKEY=$(echo "$B64KEY" | sha1sum | awk '{print $1}')
 
@@ -69,10 +70,10 @@ SCOPE="memo.$SHAKEY"
 
 # Check if command is already cached
 cd $TEMPDIR
-TIME=$(bkt --cache-dir $CACHE_DIR --scope="$SCOPE" --ttl $TTL -- bash -c "date +%s.%N; echo \"$CMD\" > \"$SHAKEY.ttl\"") #&> /dev/null
+TIME=$(bkt --cache-dir $CACHE_DIR --scope="$SCOPE" --ttl $TTL -- bash -c "date +%s.%N; echo \"$CMD\" > \"$B64KEY.ttl\"") #&> /dev/null
 
 # If not cached - run command again
-if [[ -f "$SHAKEY.ttl" ]]; then
+if [[ -f "$B64KEY.ttl" ]]; then
   cd $DIR
   eval "$CMD"
   code=$?
@@ -88,9 +89,7 @@ if [[ -f "$SHAKEY.ttl" ]]; then
 
 else
   # Else, command is cached. Print some stats
-  TTL_SINCE=$(printf %.0f $(benchmark $TIME))
-  printf "🔅 memo: (${TTL_SINCE}s of $TTL) ❯ $CMD \n"
+  TTL_SINCE=$(printf %.1f $(benchmark $TIME))
+  printf "ℹ memo: ${TTL_SINCE}s of $TTL\n"
+  printf "❯ $CMD\n"
 fi
-
-# Cleanup
-rm -rf $TEMPDIR
