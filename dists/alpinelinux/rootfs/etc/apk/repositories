@@ -1,0 +1,15 @@
+# /etc/apk/repositories
+
+# https://dl-cdn.alpinelinux.org/alpine/latest-stable/main
+# https://dl-cdn.alpinelinux.org/alpine/latest-stable/community
+
+# https://dl-cdn.alpinelinux.org/alpine/v3.20/main
+# https://dl-cdn.alpinelinux.org/alpine/v3.20/community
+
+# https://mirror.bahnhof.net/pub/alpinelinux/v3.20/main
+# https://mirror.bahnhof.net/pub/alpinelinux/v3.20/community
+
+https://ftp.lysator.liu.se/pub/alpine/v3.20/community
+https://ftp.lysator.liu.se/pub/alpine/v3.20/main
+
+#@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing
