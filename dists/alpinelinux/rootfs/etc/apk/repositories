@@ -12,4 +12,4 @@
 https://ftp.lysator.liu.se/pub/alpine/v3.20/community
 https://ftp.lysator.liu.se/pub/alpine/v3.20/main
 
-#@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing
+@edge-testing https://dl-cdn.alpinelinux.org/alpine/edge/testing
