@@ -73,38 +73,28 @@ fi
 
 start=$(time-now)
 
-if [[ "$CI" == "true" ]]; then
-  echo "Downloading $OUTPUT from $URL"
+echo "Downloading ${OUTPUT} from ${URL}"
 
-  args='--no-progress-meter --silent'
-  COLUMNS=80 curl \
-    $args \
-    --disable \
-    --show-error \
-    --location \
-    --keepalive \
-    --connect-timeout 10 \
-    --retry 1 \
-    --http2 \
-    --fail-with-body \
-    --compressed \
-    -o "$OUTPUT" \
-    ${URL} 2>&1
-else
-  COLUMNS=80 xh \
-    -p bB \
-    --check-status \
-    --download \
-    --output "$OUTPUT" \
-    ${URL} 2>&1
-fi
+curl \
+  $args \
+  --disable \
+  --show-error \
+  --location \
+  --keepalive \
+  --connect-timeout 10 \
+  --retry 2 \
+  --http2 \
+  --fail-with-body \
+  --compressed \
+  -o "${OUTPUT}" \
+  ${URL} 2>&1
 
 code=$?
 
 # cat $TEMPLOG
 
 if [ $code -ne 0 ]; then
-  echo "❌ [Error: $code] $URL"
+  echo "❌ $URL"
   exit $code
 fi
 
@@ -115,6 +105,7 @@ mv $TEMPDIR/$OUTPUT $OUTPUT
 stop=$(benchmark $start)
 
 if [[ "$CI" == "true" ]]; then
-  SIZE=$(du -bh $OUTPUT | xargs | cut -d ' ' -f1)
-  echo "DONE ... in ${stop}s. $SIZE"
+  # SIZE=$(du -bh $OUTPUT | xargs | cut -d ' ' -f1)
+  # echo "DONE ... in ${stop}s. $SIZE"
+  echo "DONE ... in ${stop}s."
 fi
