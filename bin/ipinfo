@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# https://ip-api.com/docs/api:json
+# https://ip-api.com/docs/api:batch
+
+set -o errexit
+set -e
+
+IP=$1
+
+bkt --ttl=3d --discard-failures -- \
+  curl -fsL "http://ip-api.com/json/$IP?fields=status,message,query,country,countryCode,city,as,asname,mobile,proxy,hosting,accuracy"

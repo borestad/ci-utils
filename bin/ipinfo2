@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# https://ip-api.com/docs/api:json
+# https://ip-api.com/docs/api:batch
+
+set -o errexit
+set -e
+
+IP=$1
+
+DATA=$(printf '[{"query": "%s", "fields": "query,countryCode,status,country,isp,as,asname,mobile,proxy,hosting,org,accuracy"}]' "$IP" | jq -r tostring)
+
+bkt --ttl=3d --discard-failures -- \
+  curl -fsL http://ip-api.com/batch \
+    --data "${DATA}"
