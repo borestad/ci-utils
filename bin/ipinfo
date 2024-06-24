@@ -6,7 +6,12 @@
 set -o errexit
 set -e
 
-IP=$1
+IP=''
+if [ -n "$1" ]; then
+    IP="$1"
+else
+    IP=$(cat)
+fi
 
 bkt --ttl=3d --discard-failures -- \
-  curl -fsL "http://ip-api.com/json/$IP?fields=status,message,query,country,countryCode,city,as,asname,mobile,proxy,hosting,accuracy"
+  curl -fsL "http://ip-api.com/json/$IP?fields=status,message,query,country,countryCode,city,as,asname,mobile,proxy,hosting,org,accuracy"
