@@ -17,7 +17,7 @@ else
 fi
 
 function get-subdir() {
-  echo "$1" | sed 's/\./\//g' | xargs dirname
+  dirname $(echo "$1" | sed 's/\./\//g')
 }
 
 SUBDIR=$(get-subdir "$IP")
