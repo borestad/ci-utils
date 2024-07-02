@@ -56,7 +56,7 @@ if [ -z $CACHED ]; then
 
   if [ "$XRL" -eq "0" ]; then
     # echo "RateLimit is passed, sleep $XTTL seconds"
-    sleep 2; sleep $XTTL
+    sleep $(echo "$XTTL + 1.999" | bc -l)
   fi
 fi
 
