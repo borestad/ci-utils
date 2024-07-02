@@ -6,6 +6,9 @@
 set -o errexit
 set -e
 
+DIR=/opt/ipinfo
+BKT_CACHE_DIR=/opt/ipinfo/.cache
+
 IP=''
 if [ -n "$1" ]; then
     IP="$1"
@@ -13,5 +16,52 @@ else
     IP=$(cat)
 fi
 
-bkt --ttl=3d --discard-failures -- \
-  curl -fsL "http://ip-api.com/json/$IP?fields=status,message,query,country,countryCode,city,as,asname,mobile,proxy,hosting,org,accuracy"
+function get-subdir() {
+  echo "$1" | sed 's/\./\//g' | xargs dirname
+}
+
+SUBDIR=$(get-subdir "$IP")
+IPPATH="$DIR/json/$SUBDIR/$IP.json"
+
+# If file already exists, just return it
+test -f $IPPATH && { cat $IPPATH; exit 0; }
+
+TEMPDIR=$(mktemp -d)
+mkdir -p $DIR || { exit 1; }
+
+# TODO: Compare dates
+
+cd $TEMPDIR
+sleep 0.1
+bkt --cache-dir=$BKT_CACHE_DIR --ttl=30d --discard-failures -- \
+  bash -c """
+    date > date.txt
+    curl --max-time 5 --compressed -sfL "http://ip-api.com/json/$IP?fields=accuracy,as,asname,city,continent,continentCode,country,countryCode,hosting,isp,lat,lon,message,mobile,org,proxy,query,region,status,timezone,zip" \
+    -D headers.txt \
+    -o result.json
+
+    jq --sort-keys '. + {date: (now | todateiso8601)}' < result.json
+  """ >| result.json
+
+test -f headers.txt || { CACHED=1; }
+test -f result.json || { exit 1; }
+
+jq '.status' < result.json | grep -q success || { jq . result.json; exit 1; }
+
+if [ -z $CACHED ]; then
+  # The returned HTTP header X-Rl contains the number of requests remaining in the current rate limit window.
+  # X-Ttl contains the seconds until the limit is reset.
+  XRL=$(grep 'X-Rl' headers.txt | grep -Eo '[0-9]+')
+  XTTL=$(grep 'X-Ttl' headers.txt | grep -Eo '[0-9]+')
+
+  if [ "$XRL" -eq "0" ]; then
+    # echo "RateLimit is passed, sleep $XTTL seconds"
+    sleep 2; sleep $XTTL
+  fi
+fi
+
+mkdir -p "$DIR/json/$SUBDIR" && cd "$_"
+mv "$TEMPDIR/result.json" "$IP.json"
+jq . "$IP.json"
+
+rm -rf $TEMPDIR
