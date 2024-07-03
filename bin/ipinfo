@@ -52,7 +52,9 @@ bkt --cache-dir=$BKT_CACHE_DIR --ttl=30d --discard-failures -- \
 test -f headers.txt || { CACHED=1; }
 test -f result.json || { exit 1; }
 
-jq '.status' < result.json | grep -q success || { jq . result.json; exit 1; }
+jq '.status' < result.json | grep -q success || \
+  { jq '.message' < result.json | grep -q "reserved range"; } || \
+  { jq . result.json; exit 1; }
 
 if [ -z $CACHED ]; then
   # The returned HTTP header X-Rl contains the number of requests remaining in the current rate limit window.
