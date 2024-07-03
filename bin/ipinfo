@@ -35,7 +35,7 @@ TEMPDIR=$(mktemp -d --tmpdir=/tmp/ipinfo)
 # TODO: Compare dates
 
 cd $TEMPDIR
-sleep 0.1
+
 bkt --cache-dir=$BKT_CACHE_DIR --ttl=30d --discard-failures -- \
   bash -c """
     curl --max-time 5 --compressed -sfL "http://ip-api.com/json/$IP?fields=accuracy,as,asname,city,continent,continentCode,country,countryCode,hosting,isp,lat,lon,message,mobile,org,proxy,query,region,status,timezone,zip" \
@@ -57,7 +57,7 @@ if [ -z $CACHED ]; then
   XTTL=$(grep 'X-Ttl' headers.txt | grep -Eo '[0-9]+')
 
   if [ "$XRL" -eq "0" ]; then
-    # echo "RateLimit is passed, sleep $XTTL seconds"
+    echo "RateLimit: sleep $XTTL seconds" >> $DIR/ipinfo.log
     sleep $(echo "$XTTL + 1.999" | bc -l)
   fi
 fi
@@ -65,5 +65,7 @@ fi
 mkdir -p "$DIR/json/$SUBDIR" && cd "$_"
 mv "$TEMPDIR/result.json" "$IP.json"
 jq . "$IP.json"
+
+sleep 0.5
 
 rm -rf $TEMPDIR
