@@ -27,8 +27,10 @@ IPPATH="$DIR/json/$SUBDIR/$IP.json"
 test -f $IPPATH && { cat $IPPATH; echo "cached: $IP" >> $DIR/ipinfo.log; exit 0; }
 echo "uncached: $IP" >> $DIR/ipinfo.log;
 
-TEMPDIR=$(mktemp -d)
 mkdir -p $DIR || { exit 1; }
+mkdir -p /tmp/ipinfo || { exit 1; }
+TEMPDIR=$(mktemp -d --tmpdir=/tmp/ipinfo)
+
 
 # TODO: Compare dates
 
@@ -36,12 +38,11 @@ cd $TEMPDIR
 sleep 0.1
 bkt --cache-dir=$BKT_CACHE_DIR --ttl=30d --discard-failures -- \
   bash -c """
-    date > date.txt
     curl --max-time 5 --compressed -sfL "http://ip-api.com/json/$IP?fields=accuracy,as,asname,city,continent,continentCode,country,countryCode,hosting,isp,lat,lon,message,mobile,org,proxy,query,region,status,timezone,zip" \
     -D headers.txt \
-    -o result.json
+    -o result.tmp
 
-    jq --sort-keys '. + {date: (now | todateiso8601)}' < result.json
+    jq --sort-keys '. + {date: (now | todateiso8601)}' < result.tmp
   """ >| result.json
 
 test -f headers.txt || { CACHED=1; }
