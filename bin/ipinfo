@@ -24,7 +24,7 @@ SUBDIR=$(get-subdir "$IP")
 IPPATH="$DIR/json/$SUBDIR/$IP.json"
 
 # If file already exists, just return it
-test -f $IPPATH && { cat $IPPATH; >> $DIR/ipinfo.log; exit 0; }
+test -f $IPPATH && { cat $IPPATH; exit 0; }
 echo "uncached: $IP" >> $DIR/ipinfo.log;
 
 mkdir -p $DIR || { exit 1; }
