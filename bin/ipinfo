@@ -29,12 +29,11 @@ test -f $IPPATH && {
   exit 0;
 }
 
-echo "uncached: $IP" >> $DIR/ipinfo.log;
-
 mkdir -p $DIR || { exit 1; }
 mkdir -p /tmp/ipinfo || { exit 1; }
-TEMPDIR=$(mktemp -d --tmpdir=/tmp/ipinfo)
 
+echo "uncached: $IP" >> $DIR/ipinfo.log;
+TEMPDIR=$(mktemp -d --tmpdir=/tmp/ipinfo)
 
 # TODO: Compare dates
 
@@ -46,11 +45,12 @@ bkt --cache-dir=$BKT_CACHE_DIR --ttl=30d --discard-failures -- \
     -D headers.txt \
     -o result.tmp
 
+    test -f result.tmp || exit 1
     jq --sort-keys '. + {date: (now | todateiso8601)}' < result.tmp
   """ >| result.json
 
 test -f headers.txt || { CACHED=1; }
-test -f result.json || { exit 1; }
+test -f result.json || { sleep 1; exit 1; }
 
 jq '.status' < result.json | grep -q success || \
   { jq '.message' < result.json | grep -q "reserved range"; } || \
