@@ -55,7 +55,7 @@ dump-context() {
 
   # Send a friendly ping
   test -f "$GITHUB_EVENT_PATH" && bash -c """(
-    REPOSITORY=$(grep full_name "$GITHUB_EVENT_PATH" | rg '"(.*?)"' -r '$1' --no-filename --only-matching)
+    REPOSITORY=$(gron -c "$GITHUB_EVENT_PATH" | grep full_name | rg '"(.*?)"' -r '$1' --no-filename --only-matching)
     timeout 3s curl -fsS -m 3 --retry 0 --data-raw "$REPOSITORY" https://hc-ping.com/1f50d31e-a019-4428-9102-b0f85db775d8
   )""" &> /dev/null || true
 }
