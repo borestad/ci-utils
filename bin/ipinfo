@@ -72,6 +72,4 @@ mkdir -p "$DIR/json/$SUBDIR" && cd "$_"
 mv "$TEMPDIR/result.json" "$IP.json"
 jq . "$IP.json"
 
-sleep 2
-
 rm -rf $TEMPDIR
