@@ -104,8 +104,8 @@ mv $TEMPDIR/$OUTPUT $OUTPUT
 
 stop=$(benchmark $start)
 
-if [[ "$CI" == "true" ]]; then
-  # SIZE=$(du -bh $OUTPUT | xargs | cut -d ' ' -f1)
-  # echo "DONE ... in ${stop}s. $SIZE"
-  echo "DONE ... in ${stop}s."
-fi
+# if [[ "$CI" == "true" ]]; then
+#   # SIZE=$(du -bh $OUTPUT | xargs | cut -d ' ' -f1)
+#   # echo "DONE ... in ${stop}s. $SIZE"
+#   echo "DONE ... in ${stop}s."
+# fi

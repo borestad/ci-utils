@@ -139,3 +139,5 @@ paused.conf
 
 # History
 .*_history
+
+!packages/**/*.log
