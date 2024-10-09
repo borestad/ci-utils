@@ -10,6 +10,8 @@ dump-context() {
   echo "$JSON_JOB"       >| $DEBUG_DIR/job.json
   echo "$JSON_STEPS"     >| $DEBUG_DIR/steps.json
   echo "$JSON_RUNNER"    >| $DEBUG_DIR/runner.json
+  echo "$JSON_STRATEGY"  >| $DEBUG_DIR/strategy.json
+  echo "$JSON_MATRIX"    >| $DEBUG_DIR/matrix.json
 
   TOKEN="dump-context1-$RANDOM-$RANDOM-token"
   echo "::group::Event ($(gron $GITHUB_EVENT_PATH | wc -l))"
