@@ -13,49 +13,49 @@ dump-context() {
   echo "$JSON_STRATEGY"  >| $DEBUG_DIR/strategy.json
   echo "$JSON_MATRIX"    >| $DEBUG_DIR/matrix.json
 
-  TOKEN="dump-context1-$RANDOM-$RANDOM-token"
+  TOKEN="$(uuidgen)"
   echo "::group::Event ($(gron $GITHUB_EVENT_PATH | wc -l))"
   echo "::stop-commands::$TOKEN"
   gron -c "$GITHUB_EVENT_PATH" || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context2-$RANDOM-$RANDOM-token"
+  TOKEN="$(uuidgen)"
   echo "::group::Github Context ($(gron $DEBUG_DIR/github.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{github: add}' $DEBUG_DIR/github.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context3-$RANDOM-$RANDOM-token"
+  TOKEN="$(uuidgen)"
   echo "::group::Job Context ($(gron $DEBUG_DIR/job.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{job: add}' $DEBUG_DIR/job.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context4-$RANDOM-$RANDOM-token"
+  TOKEN="$(uuidgen)"
   echo "::group::Steps Context ($(gron $DEBUG_DIR/steps.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{steps: add}' $DEBUG_DIR/steps.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context5-$RANDOM-$RANDOM-token"
+  TOKEN="$(uuidgen)"
   echo "::group::Runner Context ($(gron $DEBUG_DIR/runner.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{runner: add}' $DEBUG_DIR/runner.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context6-$RANDOM-$RANDOM-token"
+  TOKEN="$(uuidgen)"
   echo "::group::Strategy Context ($(gron $DEBUG_DIR/strategy.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{strategy: add}' $DEBUG_DIR/strategy.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context7-$RANDOM-$RANDOM-token"
+  TOKEN="$(uuidgen)"
   echo "::group::Matrix Context ($(gron $DEBUG_DIR/matrix.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{matrix: add}' $DEBUG_DIR/matrix.json | gron -c || true
