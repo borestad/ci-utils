@@ -1,54 +1,62 @@
 #!/usr/bin/env bash
 
 dump-context() {
-  command -v gron &> /dev/null || (mkdir -p ~/.local/bin &> /dev/null && cd "$_" && wget -q -nv "https://raw.githubusercontent.com/borestad/static-binaries/main/x86_64/bin/gron" && chmod +x gron)
+  command -v gron &> /dev/null || (cd /usr/local/bin && wget -q -nv "https://raw.githubusercontent.com/borestad/static-binaries/main/x86_64/bin/gron" && chmod +x gron)
 
-  TOKEN="dump-context-$RANDOM-$RANDOM-token"
+  DEBUG_DIR="$RUNNER_WORKSPACE/.debug/ga-dump-context"
+  mkdir -p $DEBUG_DIR
+
+  echo "$JSON_GITHUB"    >| $DEBUG_DIR/github.json
+  echo "$JSON_JOB"       >| $DEBUG_DIR/job.json
+  echo "$JSON_STEPS"     >| $DEBUG_DIR/steps.json
+  echo "$JSON_RUNNER"    >| $DEBUG_DIR/runner.json
+
+  TOKEN="dump-context1-$RANDOM-$RANDOM-token"
   echo "::group::Event ($(gron $GITHUB_EVENT_PATH | wc -l))"
   echo "::stop-commands::$TOKEN"
   gron -c "$GITHUB_EVENT_PATH" || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context-$RANDOM-$RANDOM-token"
+  TOKEN="dump-context2-$RANDOM-$RANDOM-token"
   echo "::group::Github Context ($(gron $DEBUG_DIR/github.json | wc -l))"
   echo "::stop-commands::$TOKEN"
-  gron -c $DEBUG_DIR/github.json || true
+  jq -s '{github: add}' $DEBUG_DIR/github.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context-$RANDOM-$RANDOM-token"
+  TOKEN="dump-context3-$RANDOM-$RANDOM-token"
   echo "::group::Job Context ($(gron $DEBUG_DIR/job.json | wc -l))"
   echo "::stop-commands::$TOKEN"
-  gron -c $DEBUG_DIR/job.json || true
+  jq -s '{job: add}' $DEBUG_DIR/job.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context-$RANDOM-$RANDOM-token"
+  TOKEN="dump-context4-$RANDOM-$RANDOM-token"
   echo "::group::Steps Context ($(gron $DEBUG_DIR/steps.json | wc -l))"
   echo "::stop-commands::$TOKEN"
-  gron -c $DEBUG_DIR/steps.json || true
+  jq -s '{steps: add}' $DEBUG_DIR/steps.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context-$RANDOM-$RANDOM-token"
+  TOKEN="dump-context5-$RANDOM-$RANDOM-token"
   echo "::group::Runner Context ($(gron $DEBUG_DIR/runner.json | wc -l))"
   echo "::stop-commands::$TOKEN"
-  gron -c $DEBUG_DIR/runner.json || true
+  jq -s '{runner: add}' $DEBUG_DIR/runner.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context-$RANDOM-$RANDOM-token"
+  TOKEN="dump-context6-$RANDOM-$RANDOM-token"
   echo "::group::Strategy Context ($(gron $DEBUG_DIR/strategy.json | wc -l))"
   echo "::stop-commands::$TOKEN"
-  gron -c $DEBUG_DIR/strategy.json || true
+  jq -s '{strategy: add}' $DEBUG_DIR/strategy.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  TOKEN="dump-context-$RANDOM-$RANDOM-token"
+  TOKEN="dump-context7-$RANDOM-$RANDOM-token"
   echo "::group::Matrix Context ($(gron $DEBUG_DIR/matrix.json | wc -l))"
   echo "::stop-commands::$TOKEN"
-  gron -c $DEBUG_DIR/matrix.json || true
+  jq -s '{matrix: add}' $DEBUG_DIR/matrix.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
 
