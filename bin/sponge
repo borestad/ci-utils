@@ -27,7 +27,7 @@ if [ "$APPEND" = true ]; then
     cat "$TEMPFILE" >> "$FILENAME"
 else
     # Write the temp file back to the specified filename
-    mv "$TEMPFILE" "$FILENAME"
+    mv -f "$TEMPFILE" "$FILENAME"
 fi
 
 if [ $? != 0 ] ; then
