@@ -20,16 +20,12 @@ dump-context() {
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  sleep 0.1
-
   TOKEN="$(uuidgen)"
   echo "::group::Github Context ($(gron $DEBUG_DIR/github.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{github: add}' $DEBUG_DIR/github.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
-
-  sleep 0.1
 
   TOKEN="$(uuidgen)"
   echo "::group::Job Context ($(gron $DEBUG_DIR/job.json | wc -l))"
@@ -38,16 +34,12 @@ dump-context() {
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  sleep 0.1
-
   TOKEN="$(uuidgen)"
   echo "::group::Steps Context ($(gron $DEBUG_DIR/steps.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{steps: add}' $DEBUG_DIR/steps.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
-
-  sleep 0.1
 
   TOKEN="$(uuidgen)"
   echo "::group::Runner Context ($(gron $DEBUG_DIR/runner.json | wc -l))"
@@ -56,16 +48,12 @@ dump-context() {
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-  sleep 0.1
-
   TOKEN="$(uuidgen)"
   echo "::group::Strategy Context ($(gron $DEBUG_DIR/strategy.json | wc -l))"
   echo "::stop-commands::$TOKEN"
   jq -s '{strategy: add}' $DEBUG_DIR/strategy.json | gron -c || true
   echo "::$TOKEN::"
   echo "::endgroup::"
-
-  sleep 0.1
 
   TOKEN="$(uuidgen)"
   echo "::group::Matrix Context ($(gron $DEBUG_DIR/matrix.json | wc -l))"
@@ -74,12 +62,6 @@ dump-context() {
   echo "::$TOKEN::"
   echo "::endgroup::"
 
-
-
-
-  # if [[ -f "$GITHUB_EVENT_PATH" ]]; then
-  #   REPOSITORY=$(gron -c "$GITHUB_EVENT_PATH" | grep full_name | rg '"(.*?)"' -r '$1' --no-filename --only-matching) || true
-  # elif [[ -Z ""]]
 
   # Send a friendly ping for debugging purpuses!
   REPOSITORY="${GITHUB_REPOSITORY}" || true
