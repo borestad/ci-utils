@@ -18,7 +18,7 @@ cat > "$TEMPFILE"
 mv "$TEMPFILE" "$FILENAME"
 
 if [ $? != 0 ] ; then
-  rm -f $TEMPFILE &> /dev/null
+  rm -f "$TEMPFILE" &> /dev/null
   exit 1
 fi
 
