@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+# Check if a filename is provided
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <filename>"
+    exit 1
+fi
+
+FILENAME="$1"
+
+# Create a temporary file
+TEMPFILE=$(mktemp)
+
+# Read from standard input and write to the temporary file
+cat > "$TEMPFILE"
+
+# Write the temporary file back to the specified filename
+mv "$TEMPFILE" "$FILENAME"
+
+if [ $? != 0 ] ; then
+  rm -f $TEMPFILE &> /dev/null
+  exit 1
+fi
+
