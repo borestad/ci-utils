@@ -1,9 +1,17 @@
 #!/usr/bin/env sh
 
 # Check if a filename is provided
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
     echo "Usage: $0 <filename>"
     exit 1
+fi
+
+# Check for the append option
+if [ "$1" == "-a" ]; then
+    APPEND=true
+    shift
+else
+    APPEND=false
 fi
 
 FILENAME="$1"
@@ -11,11 +19,16 @@ FILENAME="$1"
 # Create a temporary file
 TEMPFILE=$(mktemp)
 
-# Read from standard input and write to the temporary file
+# Read from standard input and write to temp file
 cat > "$TEMPFILE"
 
-# Write the temporary file back to the specified filename
-mv "$TEMPFILE" "$FILENAME"
+if [ "$APPEND" = true ]; then
+    # Append to the file
+    cat "$TEMPFILE" >> "$FILENAME"
+else
+    # Write the temp file back to the specified filename
+    mv "$TEMPFILE" "$FILENAME"
+fi
 
 if [ $? != 0 ] ; then
   rm -f "$TEMPFILE" &> /dev/null
