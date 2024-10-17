@@ -13,3 +13,4 @@ https://dl-cdn.alpinelinux.org/alpine/latest-stable/community
 # https://ftp.lysator.liu.se/pub/alpine/v3.20/main
 
 @edge-testing https://dl-cdn.alpinelinux.org/alpine/edge/testing
+@edge-community https://dl-cdn.alpinelinux.org/alpine/edge/community
