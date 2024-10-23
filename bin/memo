@@ -84,6 +84,7 @@ if [[ -f "$B64KEY.ttl" ]]; then
     rm -f $(realpath ./bkt*-cache/keys/$SCOPE*)
     rm -f ./bkt*-cache/keys/$SCOPE*
 
+    rm -rf $TEMPDIR  &> /dev/null || true
     exit $code
   fi
 
@@ -92,4 +93,5 @@ else
   TTL_SINCE=$(printf %.1f $(benchmark $TIME))
   printf "ℹ memo: ${TTL_SINCE}s of $TTL\n"
   printf "❯ $CMD\n"
+  rm -rf $TEMPDIR  &> /dev/null || true
 fi
