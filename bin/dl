@@ -56,14 +56,15 @@ touch2() {
 
 DIR=$(pwd)
 BASENAME=$(basename $URL | sed 's/?.*//g')
+
+# May contain a path (i.e /a/b/c/100.zip)
 OUTPUT=${OUTPUT:-$BASENAME}
+
+# Just the raw filename (i.e 100.zip)
+FILENAME=$(basename $OUTPUT)
+
 TEMPDIR=$(mktemp -d)
-TEMPLOG=$(mktemp)
-
-# Precreate some fancy path (i.e a/b/c/100.zip)
-touch2 $TEMPDIR/$OUTPUT
 cd $TEMPDIR
-
 
 if [[ "$CI" == "true" ]]; then
   args='--no-progress-meter --silent'
@@ -86,12 +87,10 @@ curl \
   --http2 \
   --fail-with-body \
   --compressed \
-  -o "${OUTPUT}" \
+  -o "${FILENAME}" \
   ${URL} 2>&1
 
 code=$?
-
-# cat $TEMPLOG
 
 if [ $code -ne 0 ]; then
   echo "❌ $URL"
@@ -99,10 +98,14 @@ if [ $code -ne 0 ]; then
 fi
 
 cd $DIR
-touch2 $OUTPUT
-mv $TEMPDIR/$OUTPUT $OUTPUT
 
-stop=$(benchmark $start)
+# Precreate some fancy path (i.e a/b/c/100.zip)
+touch2 $TEMPDIR/$FILENAME
+mv $TEMPDIR/$FILENAME $OUTPUT
+
+rm -rf $TEMPDIR &> /dev/null || true
+
+# stop=$(benchmark $start)
 
 # if [[ "$CI" == "true" ]]; then
 #   # SIZE=$(du -bh $OUTPUT | xargs | cut -d ' ' -f1)
