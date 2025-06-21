@@ -1,6 +1,10 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Inspired from this blog article : http://www.thegeekstuff.com/2013/10/time-command-format/
+
+command -v ets >/dev/null 2>&1 || {
+  echo "ets command not found. Please install it first."
+  exit 1
+}
 
 if [[ ! -z "${CI}" ]]; then
   # Github Actions color works in mysterious ways ...
@@ -20,10 +24,10 @@ FILE=$(mktemp)
 time=$(command -v gtime || command -v /usr/bin/time)
 
 if [ ! -z "$time" ]; then
-  $time -o $FILE -f "       Total $BAR %es  [%P  %MK  %I/%O]" ets -s -f "%Mm  %S.%Ls $BAR" -- "$@"
+  $time -o $FILE -f "       Total $BAR %es  [%P  %MK  %I/%O]" ets -s -f "%Mm  %S.%Ls $BAR" 2> /dev/null -- "$@"
   code=$?
 else
-  ets -s -f "%Mm  %S.%Ls $BAR" -- "$@"
+  ets -s -f "%Mm  %S.%Ls $BAR" 2> /dev/null -- "$@"
   code=$?
 fi
 
